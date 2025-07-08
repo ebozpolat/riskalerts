@@ -1,0 +1,188 @@
+# Lark Webhook API Client
+
+A Python script to send messages to Lark (Feishu) via webhook API, equivalent to your curl command.
+
+## Installation
+
+1. Install the required dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+### Method 1: Command Line
+
+Replace `YOUR_WEBHOOK_URL` with your actual Lark webhook URL:
+
+```bash
+# Send default message
+python lark_webhook.py "https://open.larksuite.com/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN"
+
+# Send custom message
+python lark_webhook.py "https://open.larksuite.com/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN" "Your custom message"
+```
+
+### Method 2: Import as Module
+
+```python
+from lark_webhook import LarkWebhookClient
+
+# Initialize client
+client = LarkWebhookClient("https://open.larksuite.com/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN")
+
+# Send text message (equivalent to your curl command)
+result = client.send_text_message("request example")
+print(result)
+```
+
+### Method 3: Run Examples
+
+```bash
+# Edit example_usage.py to add your webhook URL, then run:
+python example_usage.py
+```
+
+## Group Chat Features (New!)
+
+You can now send alerts to Lark group chats with enhanced features like mentions and rich cards using the `LarkGroupChatClient`.
+
+### Using the Enhanced Risk Alert Simulator
+
+The `risk_alert_simulator.py` script has been updated to support group chat features:
+
+```bash
+python risk_alert_simulator.py
+```
+
+This script will:
+- Send alerts with @all mentions for critical messages
+- Send rich card messages with detailed alert information
+- Support multiple alert scenarios tailored for group chat
+
+### BTC Price Monitor with Group Chat Alerts
+
+A new script `btc_price_monitor.py` monitors BTC price changes using the CoinGecko API and sends alerts to your Lark group chat.
+
+```bash
+python btc_price_monitor.py
+```
+
+Features:
+- Alerts when BTC price changes by a configurable threshold percentage
+- Sends @all mentions for critical price changes
+- Sends rich card alerts with price details
+
+### Exchange Spread and Price Difference Monitor
+
+The `exchange_spread_monitor.py` script monitors spreads and price differences between Binance and Gate.io for specified trading pairs.
+
+```bash
+python exchange_spread_monitor.py
+```
+
+Features:
+- Alerts when spread on either exchange exceeds a threshold
+- Alerts when price difference between exchanges exceeds a percentage threshold
+- Sends rich card alerts with detailed price and spread information
+
+### Example Usage in Python
+
+```python
+from lark_group_chat import LarkGroupChatClient
+
+WEBHOOK_URL = "https://open.larksuite.com/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN"
+client = LarkGroupChatClient(WEBHOOK_URL)
+
+# Send urgent alert with @all mention
+client.send_urgent_alert("CRITICAL ALERT", "BTC/USDT price surged +12% in 10 minutes", mention_all=True)
+
+# Send rich card alert
+alert_details = {
+    "Parite": "BTC/USDT",
+    "Fiyat": "$45,230",
+    "Değişim": "+12.5%",
+    "Risk": "YÜKSEK"
+}
+client.send_rich_alert_card("Price Alert", alert_details, "high")
+```
+
+### Additional Scripts
+
+- `group_risk_alerts.py`: Demonstrates advanced group chat alert features including mentions, rich cards, and summaries.
+
+## Original Curl Command Equivalent
+
+Your original curl command:
+```bash
+curl -X POST -H "Content-Type: application/json" \
+    -d '{"msg_type":"text","content":{"text":"request example"}}' \
+    https://open.larksuite.com/open-apis/bot/v2/hook/****
+```
+
+Is equivalent to:
+```python
+client = LarkWebhookClient("https://open.larksuite.com/open-apis/bot/v2/hook/YOUR_TOKEN")
+result = client.send_text_message("request example")
+```
+
+## Features
+
+- ✅ Simple text messages
+- ✅ Rich text messages with formatting
+- ✅ Interactive card messages
+- ✅ Error handling and validation
+- ✅ Command line interface
+- ✅ Configurable timeouts
+- ✅ Detailed response information
+
+## Message Types
+
+### 1. Text Message
+```python
+client.send_text_message("Hello World!")
+```
+
+### 2. Rich Text Message
+```python
+content = [
+    [
+        {"tag": "text", "text": "Bold text", "style": ["bold"]},
+        {"tag": "a", "text": "Link", "href": "https://example.com"}
+    ]
+]
+client.send_rich_text_message("Title", content)
+```
+
+### 3. Card Message
+```python
+card = {
+    "elements": [
+        {
+            "tag": "div",
+            "text": {"content": "Card content", "tag": "lark_md"}
+        }
+    ]
+}
+client.send_card_message(card)
+```
+
+## Error Handling
+
+The script includes comprehensive error handling:
+- Network timeouts
+- HTTP errors
+- JSON parsing errors
+- Invalid webhook URLs
+
+## Response Format
+
+All methods return a dictionary with:
+```python
+{
+    'success': True/False,
+    'status_code': HTTP status code,
+    'data': Response data (if successful),
+    'error': Error message (if failed)
+}
+```
